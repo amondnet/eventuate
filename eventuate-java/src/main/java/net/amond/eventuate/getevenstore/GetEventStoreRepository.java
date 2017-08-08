@@ -1,7 +1,5 @@
 package net.amond.eventuate.getevenstore;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.msemys.esjc.EventData;
 import com.github.msemys.esjc.EventStore;
@@ -26,7 +24,6 @@ import net.amond.eventuate.EntityNotFoundException;
 import net.amond.eventuate.common.Aggregate;
 import net.amond.eventuate.common.Event;
 import net.amond.eventuate.eventsourcing.AggregateRepository;
-import net.amond.eventuate.messaging.StandardMetadataProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -37,7 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 public class GetEventStoreRepository<T extends Aggregate> implements AggregateRepository {
 
-  private static final String EventClrTypeHeader = "EventClrTypeName";
+  protected static final String EventClrTypeHeader = "EventClrTypeName";
   private static final String AggregateClrTypeHeader = "AggregateClrTypeName";
   private static final String CommitIdHeader = "CommitId";
 
@@ -46,10 +43,10 @@ public class GetEventStoreRepository<T extends Aggregate> implements AggregateRe
   private Class<T> clasz;
   private EventStore eventStore;
   private ObjectMapper objectMapper;
+  protected GetEventStoreEventMapper eventMapper;
 
   /**
-   * Constructs a new GetEventStoreRepository for the specified aggregate class and aggregate
-   * store
+   * Constructs a new GetEventStoreRepository for the specified aggregate class and aggregate store
    *
    * @param clasz the class of the aggregate
    * @param eventStore the aggregate store
@@ -58,6 +55,7 @@ public class GetEventStoreRepository<T extends Aggregate> implements AggregateRe
     this.clasz = clasz;
     this.eventStore = eventStore;
     this.objectMapper = objectMapper;
+    this.eventMapper = new GetEventStoreEventMapper(objectMapper);
   }
 
   public CompletableFuture<T> findAsync(UUID id) {
@@ -89,10 +87,10 @@ public class GetEventStoreRepository<T extends Aggregate> implements AggregateRe
         nextSliceStart = currentSlice.nextEventNumber;
 
         events.addAll(currentSlice.events.stream()
-            .map(this::toEvent)
+            .map(event -> eventMapper.toEvent(event))
             .collect(Collectors.toList()));
         for (ResolvedEvent event : currentSlice.events) {
-          aggregate.applyEvent(toEvent(event));
+          aggregate.applyEvent(eventMapper.toEvent(event));
           //Aggregates.recreateAggregate(clasz, events);
         }
       } while (!currentSlice.isEndOfStream);
@@ -138,7 +136,7 @@ public class GetEventStoreRepository<T extends Aggregate> implements AggregateRe
         .put(AggregateClrTypeHeader, aggregateType).build();
     List<EventData> eventsToSave =
         events.stream()
-            .map(e -> toEventData(e, commitHeaders))
+            .map(e -> eventMapper.toEventData(e, commitHeaders))
             .collect(Collectors.toList());
 
     String streamName = getStreamName(aggregate.getClass(), aggregate.id());
@@ -160,48 +158,5 @@ public class GetEventStoreRepository<T extends Aggregate> implements AggregateRe
 
   private String getStreamName(Class type, UUID id) {
     return String.format("%s-%s", type.getSimpleName(), id);
-  }
-
-  public EventData toEventData(Object message, Map<String, Object> headers) {
-
-    StandardMetadataProvider provider = new StandardMetadataProvider();
-    Map<String, String> standardMetadata = provider.getMetadata(message);
-
-    Map<String, Object> eventHeaders = ImmutableMap.<String, Object>builder()
-        .putAll(headers)
-        .put(EventClrTypeHeader, message.getClass().getCanonicalName())
-        .putAll(standardMetadata)
-        .build();
-    try {
-
-      String metadata = objectMapper.writeValueAsString(eventHeaders);
-      String data = objectMapper.writeValueAsString(message);
-      String typeName = message.getClass().getSimpleName();
-      UUID eventId = UUID.randomUUID();
-
-      return EventData.newBuilder()
-          .eventId(eventId)
-          .type(typeName)
-          .jsonData(data)
-          .jsonMetadata(metadata)
-          .build();
-    } catch (JsonProcessingException e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
-    }
-  }
-
-  private Event toEvent(ResolvedEvent resolvedEvent) {
-
-    try {
-      String eventClrTypeName = objectMapper.readTree(resolvedEvent.originalEvent().metadata)
-          .findValue(EventClrTypeHeader)
-          .textValue();
-      JavaType type = objectMapper.getTypeFactory().constructFromCanonical(eventClrTypeName);
-      return objectMapper.readValue(resolvedEvent.originalEvent().data, type);
-    } catch (IOException e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
-    }
   }
 }

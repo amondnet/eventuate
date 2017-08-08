@@ -10,7 +10,6 @@ allprojects {
   ext.baseVersion = "1.0.4"
   ext.snapshotVersion = false
 
-  ext.springVersion = "1.5.2.RELEASE"
 
   group = "net.amond.eventuate"
   version = "$baseVersion" + (snapshotVersion ? "-SNAPSHOT" : "")
