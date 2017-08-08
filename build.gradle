@@ -1,0 +1,55 @@
+plugins {
+  id "org.sonarqube" version "2.5"
+}
+apply plugin: 'java'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.8
+
+allprojects {
+  ext.baseVersion = "1.0.4"
+  ext.snapshotVersion = false
+
+  ext.springVersion = "1.5.2.RELEASE"
+
+  group = "net.amond.eventuate"
+  version = "$baseVersion" + (snapshotVersion ? "-SNAPSHOT" : "")
+  repositories {
+    maven {
+      url 'https://repo.leafmill.com/repository/maven-public/'
+      credentials {
+        username 'developer'
+        password 'leafmill2119'
+      }
+    }
+    jcenter()
+  }
+}
+subprojects {
+  repositories {
+    maven {
+      url 'https://repo.leafmill.com/repository/maven-public/'
+      credentials {
+        username 'developer'
+        password 'leafmill2119'
+      }
+    }
+    mavenCentral()
+  }
+  sonarqube {
+    properties {
+      property "sonar.projectName", "eventuate"
+      property "sonar.projectKey", "net.amond.eventuate:eventuate"
+      property "sonar.sources", "src/main/java"
+    }
+  }
+}
+
+sonarqube {
+  properties {
+    property "sonar.sourceEncoding", "UTF-8"
+  }
+}
+
+
+

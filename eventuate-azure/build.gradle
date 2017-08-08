@@ -1,0 +1,31 @@
+buildscript {
+  repositories {
+    maven {
+      url 'https://repo.leafmill.com/repository/maven-public/'
+      credentials {
+        username 'developer'
+        password 'leafmill2119'
+      }
+    }
+    mavenCentral()
+  }
+  dependencies {
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:$springVersion")
+  }
+}
+group 'net.amond.eventuate'
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+
+sourceCompatibility = 1.8
+
+
+
+dependencies {
+  compile project(':eventuate-java')
+
+  compile "org.springframework.boot:spring-boot-autoconfigure:$springVersion"
+  compile 'com.microsoft.azure:azure-servicebus:0.9.7'
+  testCompile group: 'junit', name: 'junit', version: '4.12'
+}

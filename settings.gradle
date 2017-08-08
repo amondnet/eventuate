@@ -1,0 +1,3 @@
+rootProject.name = 'eventuate'
+include 'eventuate-java'
+include 'eventuate-azure'
