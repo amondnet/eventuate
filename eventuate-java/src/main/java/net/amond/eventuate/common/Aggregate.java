@@ -1,5 +1,6 @@
 package net.amond.eventuate.common;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -21,7 +22,7 @@ public interface Aggregate<T extends Aggregate> {
   /**
    * Gets the entity identifier.
    */
-  UUID id();
+  Serializable id();
 
   /**
    * Gets the collection of new events since the entity was loaded, as a consequence of command

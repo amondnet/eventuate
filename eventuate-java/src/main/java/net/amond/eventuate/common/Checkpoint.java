@@ -13,8 +13,16 @@ package net.amond.eventuate.common;
  *
  * @author amond
  */
-public class Checkpoint {
+public class Checkpoint implements Event {
   private int position;
+
+  public Checkpoint() {
+    this(0);
+  }
+
+  public Checkpoint(int position) {
+    this.position = position;
+  }
 
   public int getPosition() {
     return position;

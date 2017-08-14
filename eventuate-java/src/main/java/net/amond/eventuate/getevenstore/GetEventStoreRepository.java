@@ -10,6 +10,7 @@ import com.github.msemys.esjc.StreamPosition;
 import com.github.msemys.esjc.WriteResult;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -94,7 +95,7 @@ public class GetEventStoreRepository<T extends Aggregate> implements AggregateRe
           //Aggregates.recreateAggregate(clasz, events);
         }
       } while (!currentSlice.isEndOfStream);
-    } catch (InterruptedException | ExecutionException e) {
+    } catch (InterruptedException | ExecutionException e ) {
       e.printStackTrace();
     }
     return (T) aggregate;
@@ -152,11 +153,11 @@ public class GetEventStoreRepository<T extends Aggregate> implements AggregateRe
     return eventStore.appendToStream(streamName, expectedVersion, eventsToSave);
   }
 
-  private String getStreamName(UUID id) {
+  private String getStreamName(Serializable id) {
     return getStreamName(clasz, id);
   }
 
-  private String getStreamName(Class type, UUID id) {
+  private String getStreamName(Class type, Serializable id) {
     return String.format("%s-%s", type.getSimpleName(), id);
   }
 }

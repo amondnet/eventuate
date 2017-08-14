@@ -10,7 +10,7 @@ import net.amond.eventuate.common.Event;
  */
 public interface EventMapper<T, U> {
 
-  T toEventData(Event event, Map<String, Object> headers);
+  T toEventData(Event event, Map<String, Object> headers) throws EventMappingException;
 
-  Event toEvent(U data);
+  Event toEvent(U data) throws EventMappingException;
 }
