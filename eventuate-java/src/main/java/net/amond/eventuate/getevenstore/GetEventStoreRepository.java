@@ -84,7 +84,7 @@ public class GetEventStoreRepository<T extends Aggregate> implements AggregateRe
     try {
       do {
         currentSlice =
-            eventStore.readStreamEventsForward(streamName, nextSliceStart, 200, false).get();
+            eventStore.readStreamEventsForward(streamName, nextSliceStart, 200, true).get();
         nextSliceStart = currentSlice.nextEventNumber;
 
         events.addAll(currentSlice.events.stream()
@@ -95,7 +95,7 @@ public class GetEventStoreRepository<T extends Aggregate> implements AggregateRe
           //Aggregates.recreateAggregate(clasz, events);
         }
       } while (!currentSlice.isEndOfStream);
-    } catch (InterruptedException | ExecutionException e ) {
+    } catch (InterruptedException | ExecutionException e) {
       e.printStackTrace();
     }
     return (T) aggregate;
@@ -158,6 +158,6 @@ public class GetEventStoreRepository<T extends Aggregate> implements AggregateRe
   }
 
   private String getStreamName(Class type, Serializable id) {
-    return String.format("%s-%s", type.getSimpleName(), id);
+    return String.format("%s-%s", type.getSimpleName().replace("Aggregate", ""), id);
   }
 }

@@ -67,7 +67,11 @@ public class GetEventStoreEventMapper implements EventMapper<EventData, Resolved
 
   @Override public Event toEvent(ResolvedEvent resolvedEvent) throws EventMappingException {
     try {
+      LOGGER.info("event is resolved: {}", resolvedEvent.isResolved());
       LOGGER.info("event is {}", resolvedEvent.event.eventId);
+      LOGGER.info("event stream {}", resolvedEvent.event.eventStreamId);
+      LOGGER.info("event type {}", resolvedEvent.event.eventType);
+
       String eventClrTypeName = objectMapper.readTree(resolvedEvent.event.metadata)
           .findValue(EventClrTypeHeader)
           .textValue();

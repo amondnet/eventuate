@@ -33,7 +33,7 @@ public class CheckPointRepository {
     LOGGER.debug("getLastCheckpoint");
     try {
       EventReadResult eventReadResult =
-          eventStore.readEvent(stream, StreamPosition.END, true).get();
+          eventStore.readEvent(stream, StreamPosition.END, false).get();
 
       LOGGER.info("read checkpoint");
       switch (eventReadResult.status) {
@@ -59,6 +59,7 @@ public class CheckPointRepository {
     try {
       eventStore.appendToStream(stream, ExpectedVersion.ANY,
           eventMapper.toEventData(checkPoint, headers)).get();
+      LOGGER.info("save checkpoint success");
     } catch (InterruptedException | ExecutionException e) {
       LOGGER.error("save checkpoint error", e);
       throw new CheckPointException();
