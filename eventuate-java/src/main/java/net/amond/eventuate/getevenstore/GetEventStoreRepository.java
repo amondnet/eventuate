@@ -3,10 +3,12 @@ package net.amond.eventuate.getevenstore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.msemys.esjc.EventData;
 import com.github.msemys.esjc.EventStore;
+import com.github.msemys.esjc.EventStoreException;
 import com.github.msemys.esjc.ExpectedVersion;
 import com.github.msemys.esjc.ResolvedEvent;
 import com.github.msemys.esjc.StreamEventsSlice;
 import com.github.msemys.esjc.StreamPosition;
+import com.github.msemys.esjc.Transaction;
 import com.github.msemys.esjc.WriteResult;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
@@ -39,10 +41,13 @@ public class GetEventStoreRepository<T extends Aggregate> implements AggregateRe
   private static final String AggregateClrTypeHeader = "AggregateClrTypeName";
   private static final String CommitIdHeader = "CommitId";
 
+  private static final int WRITE_PAGE_SIZE = 500;
+  private static final int READ_PAGE_SIZE = 500;
+
   private static Logger LOGGER = LoggerFactory.getLogger(GetEventStoreRepository.class);
 
   private Class<T> clasz;
-  private EventStore eventStore;
+  private final EventStore eventStore;
   private ObjectMapper objectMapper;
   protected GetEventStoreEventMapper eventMapper;
 
@@ -150,7 +155,32 @@ public class GetEventStoreRepository<T extends Aggregate> implements AggregateRe
     } catch (IOException e) {
       e.printStackTrace();
     }
-    return eventStore.appendToStream(streamName, expectedVersion, eventsToSave);
+    try {
+      if (events.size() < WRITE_PAGE_SIZE) {
+        CompletableFuture<WriteResult> completableFuture =
+            eventStore.appendToStream(streamName, expectedVersion, eventsToSave);
+        aggregate.getUncommittedEvents().clear();
+        return completableFuture;
+      } else {
+        Transaction transaction = eventStore.startTransaction(streamName, expectedVersion).join();
+        int position = 0;
+        while (position < events.size()) {
+          List<EventData> pageEvents = events.stream()
+              .skip(position)
+              .limit(WRITE_PAGE_SIZE)
+              .map(event -> eventMapper.toEventData(event, commitHeaders))
+              .collect(
+                  Collectors.toList());
+          transaction.write(pageEvents);
+          position += WRITE_PAGE_SIZE;
+        }
+        CompletableFuture<WriteResult> completeFuture = transaction.commit();
+        aggregate.getUncommittedEvents().clear();
+        return completeFuture;
+      }
+    } catch (EventStoreException e) {
+      throw e;
+    }
   }
 
   private String getStreamName(Serializable id) {
