@@ -1,12 +1,5 @@
 buildscript {
   repositories {
-    maven {
-      url 'https://repo.leafmill.com/repository/maven-public/'
-      credentials {
-        username 'developer'
-        password 'leafmill2119'
-      }
-    }
     mavenCentral()
   }
   dependencies {

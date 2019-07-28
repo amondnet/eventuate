@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="eventuate.eventuate-azure.main" target="1.8" />
+      <module name="eventuate.eventuate-azure.test" target="1.8" />
+      <module name="eventuate.eventuate-java.main" target="1.8" />
+      <module name="eventuate.eventuate-java.test" target="1.8" />
+      <module name="eventuate.main" target="1.8" />
+      <module name="eventuate.test" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

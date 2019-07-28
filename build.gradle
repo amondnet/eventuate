@@ -14,25 +14,11 @@ allprojects {
   group = "net.amond.eventuate"
   version = "$baseVersion" + (snapshotVersion ? "-SNAPSHOT" : "")
   repositories {
-    maven {
-      url 'https://repo.leafmill.com/repository/maven-public/'
-      credentials {
-        username 'developer'
-        password 'leafmill2119'
-      }
-    }
     jcenter()
   }
 }
 subprojects {
   repositories {
-    maven {
-      url 'https://repo.leafmill.com/repository/maven-public/'
-      credentials {
-        username 'developer'
-        password 'leafmill2119'
-      }
-    }
     mavenCentral()
   }
   sonarqube {
