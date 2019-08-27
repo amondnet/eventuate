@@ -11,7 +11,7 @@ allprojects {
   ext.snapshotVersion = false
 
 
-  group = "net.amond.eventuate"
+  group = "net.amond.sagun"
   version = "$baseVersion" + (snapshotVersion ? "-SNAPSHOT" : "")
   repositories {
     jcenter()
@@ -23,8 +23,8 @@ subprojects {
   }
   sonarqube {
     properties {
-      property "sonar.projectName", "eventuate"
-      property "sonar.projectKey", "net.amond.eventuate:eventuate"
+      property "sonar.projectName", "sagun"
+      property "sonar.projectKey", "net.amond.sagun:sagun"
       property "sonar.sources", "src/main/java"
     }
   }

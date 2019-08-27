@@ -8,6 +8,12 @@
       <module name="eventuate.eventuate-java.test" target="1.8" />
       <module name="eventuate.main" target="1.8" />
       <module name="eventuate.test" target="1.8" />
+      <module name="sagun.eventuate-java.main" target="1.8" />
+      <module name="sagun.eventuate-java.test" target="1.8" />
+      <module name="sagun.main" target="1.8" />
+      <module name="sagun.sagun-core.main" target="1.8" />
+      <module name="sagun.sagun-core.test" target="1.8" />
+      <module name="sagun.test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

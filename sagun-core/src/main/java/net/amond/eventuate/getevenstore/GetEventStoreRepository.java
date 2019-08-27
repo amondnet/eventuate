@@ -37,9 +37,8 @@ import org.slf4j.LoggerFactory;
  */
 public class GetEventStoreRepository<T extends Aggregate> implements AggregateRepository {
 
-  protected static final String EventClrTypeHeader = "EventClrTypeName";
-  private static final String AggregateClrTypeHeader = "AggregateClrTypeName";
-  private static final String CommitIdHeader = "CommitId";
+  private static final String AggregateClrTypeHeader = "aggregateClrTypeName";
+  private static final String CommitIdHeader = "commitId";
 
   private static final int WRITE_PAGE_SIZE = 500;
   private static final int READ_PAGE_SIZE = 500;
